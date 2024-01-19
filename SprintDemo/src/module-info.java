@@ -1,9 +1,0 @@
-/**
- * 
- */
-/**
- * @author TugceYayman
- *
- */
-module SprintDemo {
-}
