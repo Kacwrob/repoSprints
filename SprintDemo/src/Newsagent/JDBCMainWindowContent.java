@@ -6,20 +6,21 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileWriter;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -53,7 +54,7 @@ public class JDBCMainWindowContent extends JInternalFrame implements ActionListe
 	private JTextField firstNameTF = new JTextField(10);
 	private JTextField lastNameTF = new JTextField(10);
 	private JTextField usernameTF = new JTextField(10);
-	private JTextField passwordTF = new JTextField(10);
+	private JPasswordField passwordTF = new JPasswordField(10);
 	private JTextField emailTF = new JTextField(10);
 	private JTextField contactNumberTF = new JTextField(10);
 
@@ -130,7 +131,7 @@ public class JDBCMainWindowContent extends JInternalFrame implements ActionListe
 
 		detailsPanel.setSize(360, 204);
 		detailsPanel.setLocation(3, 0);
-		dbContentsPanel.setSize(550, 202);
+		dbContentsPanel.setSize(841, 202);
 		dbContentsPanel.setLocation(480, 2);
 
 		content.add(detailsPanel);
@@ -165,14 +166,23 @@ public class JDBCMainWindowContent extends JInternalFrame implements ActionListe
 		// CRUD actions
 		if (target == insertButton) {
 			try {
-				String updateTemp = "INSERT INTO Newsagents VALUES(" + null + ",'" + firstNameTF.getText() + "', '"
-						+ lastNameTF.getText() + "', '" + usernameTF.getText() + "', sha1('" + passwordTF.getText()
-						+ "'), '" + emailTF.getText() + "', '" + contactNumberTF.getText() + "');";
+				String updateTemp = "CALL UpsertNewsagent(?, ?, ?, ?, sha1(?), ?, ?)";
+				PreparedStatement pstmt = con.prepareStatement(updateTemp);
 
-				stmt.executeUpdate(updateTemp);
+				pstmt.setNull(1, Types.INTEGER);
+				pstmt.setString(2, Newsagent.validateFirstName(firstNameTF.getText()));
+				pstmt.setString(3, Newsagent.validateLastName(lastNameTF.getText()));
+				pstmt.setString(4, Newsagent.validateUserName(usernameTF.getText()));
+				pstmt.setString(5, Newsagent.validatePassword(String.valueOf(passwordTF.getPassword())));
+				pstmt.setString(6, Newsagent.validateEmail(emailTF.getText()));
+				pstmt.setString(7, Newsagent.validateContactNumber(contactNumberTF.getText()));
+
+				pstmt.executeUpdate();
 
 			} catch (SQLException sqle) {
 				System.err.println("Error with insert:\n" + sqle.toString());
+			} catch (NewsagentExceptionHandler e1) {
+				JOptionPane.showMessageDialog(this, e1.getMessage(), "Insert Error", JOptionPane.ERROR_MESSAGE);
 			} finally {
 				newsagentTableModel.refreshNewsagentTableFromDB(stmt);
 			}
@@ -194,12 +204,18 @@ public class JDBCMainWindowContent extends JInternalFrame implements ActionListe
 		if (target == updateButton) {
 			try {
 
-				String updateTemp = "UPDATE Newsagents SET firstName = '" + firstNameTF.getText() + "', lastName = '"
-						+ lastNameTF.getText() + "', username = '" + usernameTF.getText() + "', password ='"
-						+ passwordTF.getText() + "', email = '" + emailTF.getText() + "', contactNo = '"
-						+ contactNumberTF.getText() + "' where newsagent_id = " + IDTF.getText();
+				String updateTemp = "CALL UpsertNewsagent(?, ?, ?, ?, sha1(?), ?, ?)";
+				PreparedStatement pstmt = con.prepareStatement(updateTemp);
 
-				stmt.executeUpdate(updateTemp);
+				pstmt.setInt(1, Integer.parseInt(IDTF.getText()));
+				pstmt.setString(2, Newsagent.validateFirstName(firstNameTF.getText()));
+				pstmt.setString(3, Newsagent.validateLastName(lastNameTF.getText()));
+				pstmt.setString(4, Newsagent.validateUserName(usernameTF.getText()));
+				pstmt.setString(5, Newsagent.validatePassword(String.valueOf(passwordTF.getPassword())));
+				pstmt.setString(6, Newsagent.validateEmail(emailTF.getText()));
+				pstmt.setString(7, Newsagent.validateContactNumber(contactNumberTF.getText()));
+
+				pstmt.executeUpdate();
 
 				// The table updates when we access the db.
 				rs = stmt.executeQuery("SELECT * from Newsagents ");
@@ -207,7 +223,9 @@ public class JDBCMainWindowContent extends JInternalFrame implements ActionListe
 				rs.close();
 
 			} catch (SQLException sqle) {
-				System.err.println("Error with  update:\n" + sqle.toString());
+				System.err.println("Error with update:\n" + sqle.toString());
+			} catch (NewsagentExceptionHandler e1) {
+				JOptionPane.showMessageDialog(this, e1.getMessage(), "Insert Error", JOptionPane.ERROR_MESSAGE);
 			} finally {
 				newsagentTableModel.refreshNewsagentTableFromDB(stmt);
 			}
@@ -226,32 +244,4 @@ public class JDBCMainWindowContent extends JInternalFrame implements ActionListe
 
 	}
 
-	///////////////////////////////////////////////////////////////////////////
-
-	private void writeToFile(ResultSet rs) {
-		try {
-			System.out.println("In writeToFile");
-			FileWriter outputFile = new FileWriter("output.csv");
-			PrintWriter printWriter = new PrintWriter(outputFile);
-			ResultSetMetaData rsmd = rs.getMetaData();
-			int numColumns = rsmd.getColumnCount();
-
-			for (int i = 0; i < numColumns; i++) {
-				printWriter.print(rsmd.getColumnLabel(i + 1) + ",");
-			}
-			printWriter.print("\n");
-
-			while (rs.next()) {
-				for (int i = 0; i < numColumns; i++) {
-					printWriter.print(rs.getString(i + 1) + ",");
-				}
-				printWriter.print("\n");
-				printWriter.flush();
-			}
-			printWriter.close();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 }
