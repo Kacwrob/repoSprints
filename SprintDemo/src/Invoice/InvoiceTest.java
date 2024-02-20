@@ -1,3 +1,4 @@
+package Invoice;
 import java.sql.*;
 
 public class InvoiceTest {
@@ -79,7 +80,7 @@ public class InvoiceTest {
             } catch (SQLException se) {
                 se.printStackTrace();
             } 
-        } /
+        } 
         System.out.println("Goodbye!");
     }
 }
