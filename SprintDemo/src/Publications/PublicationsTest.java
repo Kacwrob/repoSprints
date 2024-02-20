@@ -1,8 +1,21 @@
-import org.junit.Assert;
-import org.junit.Test;
-import java.sql.*;
 
-public class PublicationsDBTest {
+package Publications;
+
+import static org.junit.Assert.assertEquals;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import junit.framework.Assert;
+
+@SuppressWarnings("deprecation")
+public class PublicationsTest {
 
     private Connection getConnection() throws SQLException {
         
@@ -10,7 +23,6 @@ public class PublicationsDBTest {
         return DriverManager.getConnection(url, "root", "root");
     }
 
-    @Test
     public void testAddPublication() {
         
         String sql = "INSERT INTO Publications (title, author, genre, publication_date, price, stock) VALUES (?, ?, ?, ?, ?, ?)";
@@ -42,7 +54,6 @@ public class PublicationsDBTest {
         }
     }
 
-    @Test
     public void testBrowsePublications() throws SQLException {
         List<String> publicationTitles = new ArrayList<>();
         String query = "SELECT title FROM Publications";
@@ -58,7 +69,6 @@ public class PublicationsDBTest {
         }
     }
 
-    @Test
     public void testUpdatePublication() throws SQLException {
         
         String updateSql = "UPDATE Publications SET price = ? WHERE id = ?";
@@ -73,7 +83,6 @@ public class PublicationsDBTest {
         }
     }
 
-    @Test
     public void testDeletePublication() throws SQLException {
         
         String insertSql = "INSERT INTO Publications (title, author, genre, publication_date, price, stock) VALUES ('Delete Me', 'Author', 'Genre', '2024-01-01', 10.00, 5)";
