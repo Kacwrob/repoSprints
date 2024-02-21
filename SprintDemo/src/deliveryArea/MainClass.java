@@ -1,4 +1,5 @@
-package Newsagent;
+package deliveryArea;
+
 
 public class MainClass {
 	public static void main(String args[]) {

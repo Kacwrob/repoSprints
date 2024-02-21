@@ -1,4 +1,4 @@
-package Newsagent;
+package deliveryArea;
 
 import java.awt.Color;
 import java.awt.Container;
@@ -41,25 +41,20 @@ public class JDBCMainWindowContent extends JInternalFrame implements ActionListe
 	private Border lineBorder;
 
 	// Book labels and text fields
-	private JLabel IDLabel = new JLabel("ID:                 ");
-	private JLabel firstNameLabel = new JLabel("First Name:               ");
-	private JLabel lastNameLabel = new JLabel("Last Name:      ");
-	private JLabel usernameLabel = new JLabel("Username:               ");
-	private JLabel passwordLabel = new JLabel("Password:      ");
-	private JLabel emailLabel = new JLabel("Email:        ");
-	private JLabel contactNumberLabel = new JLabel("Contact number:                 ");
+	private JLabel IDLabel = new JLabel("Area ID:                 ");
+	private JLabel firstNameLabel = new JLabel("Customer ID:               ");
+	private JLabel lastNameLabel = new JLabel("Town:      ");
+	private JLabel usernameLabel = new JLabel("Order Date:               ");
+
 
 	private JTextField IDTF = new JTextField(10);
 	private JTextField firstNameTF = new JTextField(10);
 	private JTextField lastNameTF = new JTextField(10);
 	private JTextField usernameTF = new JTextField(10);
-	private JTextField passwordTF = new JTextField(10);
-	private JTextField emailTF = new JTextField(10);
-	private JTextField contactNumberTF = new JTextField(10);
 
 	// Creating Table Model objects
-	private static NewsagentTableModel newsagentTableModel = new NewsagentTableModel();
-	private JTable newsagentTable = new JTable(newsagentTableModel);
+	private static DeliveryAreaTableModel deliveryAreaTableModel = new DeliveryAreaTableModel();
+	private JTable deliveryAreaTable = new JTable(deliveryAreaTableModel);
 
 	// Buttons for inserting, and updating members
 	// also a clear button to clear details panel
@@ -94,12 +89,7 @@ public class JDBCMainWindowContent extends JInternalFrame implements ActionListe
 		detailsPanel.add(lastNameTF);
 		detailsPanel.add(usernameLabel);
 		detailsPanel.add(usernameTF);
-		detailsPanel.add(passwordLabel);
-		detailsPanel.add(passwordTF);
-		detailsPanel.add(emailLabel);
-		detailsPanel.add(emailTF);
-		detailsPanel.add(contactNumberLabel);
-		detailsPanel.add(contactNumberTF);
+
 
 		insertButton.setSize(100, 30);
 		updateButton.setSize(100, 30);
@@ -121,12 +111,12 @@ public class JDBCMainWindowContent extends JInternalFrame implements ActionListe
 		content.add(deleteButton);
 		content.add(clearButton);
 
-		newsagentTable.setPreferredScrollableViewportSize(new Dimension(900, 300));
+		deliveryAreaTable.setPreferredScrollableViewportSize(new Dimension(900, 300));
 
-		dbContentsPanel = new JScrollPane(newsagentTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+		dbContentsPanel = new JScrollPane(deliveryAreaTable, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		dbContentsPanel.setBackground(Color.lightGray);
-		dbContentsPanel.setBorder(BorderFactory.createTitledBorder(lineBorder, "Newsagent Table"));
+		dbContentsPanel.setBorder(BorderFactory.createTitledBorder(lineBorder, "Delivery Area Table"));
 
 		detailsPanel.setSize(360, 204);
 		detailsPanel.setLocation(3, 0);
@@ -139,7 +129,7 @@ public class JDBCMainWindowContent extends JInternalFrame implements ActionListe
 		setSize(1347, 666);
 		setVisible(true);
 
-		newsagentTableModel.refreshNewsagentTableFromDB(stmt);
+		deliveryAreaTableModel.refreshDeliveryAreaTableFromDB(stmt);
 	}
 
 	public void initiate_db_conn() {
@@ -165,51 +155,51 @@ public class JDBCMainWindowContent extends JInternalFrame implements ActionListe
 		// CRUD actions
 		if (target == insertButton) {
 			try {
-				String updateTemp = "INSERT INTO Newsagents VALUES(" + null + ",'" + firstNameTF.getText() + "', '"
-						+ lastNameTF.getText() + "', '" + usernameTF.getText() + "', sha1('" + passwordTF.getText()
-						+ "'), '" + emailTF.getText() + "', '" + contactNumberTF.getText() + "');";
+				String updateTemp = "INSERT INTO delivery_area VALUES(" + null + ","+firstNameTF.getText()+", '"
+						+ lastNameTF.getText() + "', '" + usernameTF.getText() + "');";
 
 				stmt.executeUpdate(updateTemp);
 
 			} catch (SQLException sqle) {
 				System.err.println("Error with insert:\n" + sqle.toString());
 			} finally {
-				newsagentTableModel.refreshNewsagentTableFromDB(stmt);
+				deliveryAreaTableModel.refreshDeliveryAreaTableFromDB(stmt);
 			}
 		}
 
 		if (target == deleteButton) {
 			try {
-				String updateTemp = "DELETE FROM Newsagents WHERE newsagent_id = " + IDTF.getText() + ";";
+				String updateTemp = "DELETE FROM delivery_area WHERE area_id = " + IDTF.getText() + ";";
 
 				stmt.executeUpdate(updateTemp);
 
 			} catch (SQLException sqle) {
 				System.err.println("Error with delete:\n" + sqle.toString());
 			} finally {
-				newsagentTableModel.refreshNewsagentTableFromDB(stmt);
+				deliveryAreaTableModel.refreshDeliveryAreaTableFromDB(stmt);
 			}
 		}
 
 		if (target == updateButton) {
 			try {
 
-				String updateTemp = "UPDATE Newsagents SET firstName = '" + firstNameTF.getText() + "', lastName = '"
-						+ lastNameTF.getText() + "', username = '" + usernameTF.getText() + "', password ='"
-						+ passwordTF.getText() + "', email = '" + emailTF.getText() + "', contactNo = '"
-						+ contactNumberTF.getText() + "' where newsagent_id = " + IDTF.getText();
+				String updateTemp = "UPDATE delivery_area SET customer_id = " + 
+									firstNameTF.getText() + ", town = '"+ 
+									lastNameTF.getText() + "', order_date = '" + 
+									usernameTF.getText() + 
+									" where area_id = " + IDTF.getText();
 
 				stmt.executeUpdate(updateTemp);
 
 				// The table updates when we access the db.
-				rs = stmt.executeQuery("SELECT * from Newsagents ");
+				rs = stmt.executeQuery("SELECT * from delivery_area ");
 				rs.next();
 				rs.close();
 
 			} catch (SQLException sqle) {
 				System.err.println("Error with  update:\n" + sqle.toString());
 			} finally {
-				newsagentTableModel.refreshNewsagentTableFromDB(stmt);
+				deliveryAreaTableModel.refreshDeliveryAreaTableFromDB(stmt);
 			}
 		}
 
@@ -218,9 +208,6 @@ public class JDBCMainWindowContent extends JInternalFrame implements ActionListe
 			firstNameTF.setText("");
 			lastNameTF.setText("");
 			usernameTF.setText("");
-			passwordTF.setText("");
-			emailTF.setText("");
-			contactNumberTF.setText("");
 		}
 		// end of book CRUD actions
 

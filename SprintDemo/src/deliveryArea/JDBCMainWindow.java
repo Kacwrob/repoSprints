@@ -1,4 +1,4 @@
-package Newsagent;
+package deliveryArea;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

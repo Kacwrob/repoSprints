@@ -1,4 +1,4 @@
-package Newsagent;
+package deliveryArea;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -9,7 +9,7 @@ import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 
 @SuppressWarnings("serial")
-class NewsagentTableModel extends AbstractTableModel {
+class DeliveryAreaTableModel extends AbstractTableModel {
 	Vector modelData; // will hold String[] objects
 	int colCount;
 	String[] headers = new String[0];
@@ -18,7 +18,7 @@ class NewsagentTableModel extends AbstractTableModel {
 	String[] record;
 	ResultSet rsNewsagents = null;
 
-	public NewsagentTableModel() {
+	public DeliveryAreaTableModel() {
 		modelData = new Vector();
 	}// end constructor QueryTableModel
 
@@ -42,12 +42,12 @@ class NewsagentTableModel extends AbstractTableModel {
 		return ((String[]) modelData.elementAt(row))[col];
 	}
 
-	public void refreshNewsagentTableFromDB(Statement stmt1) {
+	public void refreshDeliveryAreaTableFromDB(Statement stmt1) {
 		modelData = new Vector();
 		stmt = stmt1;
 
 		try {
-			rsNewsagents = stmt.executeQuery("SELECT * FROM Newsagents");
+			rsNewsagents = stmt.executeQuery("SELECT * FROM delivery_area");
 			ResultSetMetaData meta = rsNewsagents.getMetaData();
 
 			// to get the number of columns
